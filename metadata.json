@@ -1,0 +1,5 @@
+{
+  "name": "Spec Annotator AI",
+  "description": "An application to upload a screenshot, add numbered annotations with bounding boxes, and use AI to automatically generate descriptions for UI controls, perfect for software specification documents.",
+  "requestFramePermissions": []
+}
