@@ -43,6 +43,10 @@ export const detectAndDescribeUI = async (image: HTMLImageElement, apiKey: strin
     Your task is to identify all key interactive UI elements.
     The coordinate system origin (0,0) is the absolute top-left corner of the image. All coordinates you provide must be relative to this origin.
 
+    IMPORTANT PLACEMENT RULE: 
+    We will place annotation markers on the "Top-Right" edge of the elements you identify to avoid covering text labels. 
+    Therefore, ensure your 'topLeft' and 'bottomRight' coordinates form a tight bounding box around the visual element (e.g., the button border or the icon area).
+
     For each identified element, provide:
     1. 'description': A concise description for a software specification document, written in Traditional Chinese (正體中文).
     2. 'elementType': The type of the element ('button', 'input', 'link', 'icon', 'dropdown', 'checkbox', 'image', 'text', 'tab', 'other').
@@ -62,7 +66,7 @@ export const detectAndDescribeUI = async (image: HTMLImageElement, apiKey: strin
   `;
 
   const response = await ai.models.generateContent({
-    model: "gemini-2.5-flash",
+    model: "gemini-3-pro-preview",
     contents: {
       parts: [
         { inlineData: { mimeType: 'image/png', data: imageBase64 } },
@@ -134,9 +138,16 @@ export const detectAndDescribeUI = async (image: HTMLImageElement, apiKey: strin
         const x2 = Math.min(image.naturalWidth, bottomRight.x);
         const y2 = Math.min(image.naturalHeight, bottomRight.y);
 
-        // Calculate the center of the clamped box
-        let centerX = Math.round((x1 + x2) / 2);
-        let centerY = Math.round((y1 + y2) / 2);
+        // Calculate the marker position.
+        // PREVIOUSLY: Center (often covered text).
+        // let centerX = Math.round((x1 + x2) / 2);
+        // let centerY = Math.round((y1 + y2) / 2);
+
+        // NEW: Top-Right Corner.
+        // We place the marker on the top edge, aligned to the right side (x2).
+        // This acts like a notification badge and generally avoids left-aligned or centered text.
+        let centerX = x2;
+        let centerY = y1;
         
         // Final safeguard clamp
         centerX = Math.max(0, Math.min(centerX, image.naturalWidth));
